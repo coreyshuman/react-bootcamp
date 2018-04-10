@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>Yay learning React!</title>
+</head>
+
+<body>
+  <div id='app'>
+
+  </div>
+
+  <script src="./js/vendor/react.development.js"></script>
+  <script src="./js/vendor/react-dom.development.js"></script>
+  <script src="./js/vendor/babel.js"></script>
+  <script type='text/babel'>
+    const name = 'Corey';
+    const handle = '@CoreyShuman';
+
+    /* v1 - direct
+    const nameElement = React.createElement(
+      'h1',
+      null,
+      name
+    );
+
+    const handleElement = React.createElement(
+      'h3',
+      null,
+      handle
+    );
+    */
+
+    /* v2 - component 
+    function HandleComponent(props) {
+      return React.createElement(
+        'h3',
+        null,
+        props.handle
+      );
+    }
+
+    function NameComponent(props) {
+      return React.createElement(
+        'h1',
+        null,
+        props.name
+      );
+    }
+    */
+
+    /* v3 - jsx */
+    function HandleComponent(props) {
+      return <h3>{props.handle}</h3>
+    }
+
+    function NameComponent(props) {
+      return <h1>{props.name}</h1>
+    }
+
+    function App() {
+      return (
+        <div id='container'>
+          <NameComponent name={name} />
+          <HandleComponent handle={handle} />
+        </div>
+      )
+    }
+
+
+    /* v1, v2
+    const wrapperElement = React.createElement(
+      'div', {
+        id: 'container'
+      },
+      //nameElement,
+      //handleElement
+      React.createElement(NameComponent, {
+        name: name
+      }),
+      React.createElement(HandleComponent, {
+        handle: handle
+      })
+    );
+    */
+
+    /* v1, v2
+    ReactDOM.render(
+      wrapperElement,
+      document.getElementById('app')
+    );
+    */
+
+    ReactDOM.render(
+      <App />,
+      document.getElementById('app')
+    );
+  </script>
+</body>
+
+</html>
