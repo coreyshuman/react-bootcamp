@@ -94,6 +94,18 @@
         </div>
       )
     }
+
+    function Filter(props) {
+        return (
+          <ul>
+            {props.list.map((name) => (
+                <li key={name}>
+                <span onClick={() => props.onFilterSelect(name)}>{name}</span>
+                </li>
+            ))}
+          </ul>
+        )
+    }
     
 
     class App extends React.Component {
@@ -103,8 +115,9 @@
 
         this.state = {
           repos: [],
-          input: '',
-          loading: true
+          list: ['JavaScript', 'Ruby', 'Python', 'All'],
+          loading: true,
+          name: 'All'
         }
 
         // autobind all own functions
@@ -121,7 +134,8 @@
         console.log('--componentDidMount--');
 
         API.fetchPopularRepos().then((repos) => {
-          console.log('REPOS', repos)
+          console.log('REPOS', repos);
+          this.repos = repos;
           this.setState({
             repos,
             loading: false
@@ -146,6 +160,31 @@
         console.log('--getDerivedStatesFromProps--');
       }
 
+      onFilterSelect(name) {
+        if(name === 'All') {
+          name = null;
+        }
+        this.setState({
+          loading: true,
+          name: name
+        })
+        API.fetchPopularRepos(name).then((repos) => {
+          this.setState({
+            repos,
+            loading: false
+          })
+        })
+        /*
+        name === 'All'
+          ? this.setState({
+            repos: this.repos
+            })
+          : this.setState({
+            repos: this.repos.filter((repo) => repo.language === name)
+            })
+            */
+      }
+
       render() {
         console.log('--render--');
 
@@ -155,7 +194,14 @@
 
         return (
           <div>
-            <div class='repos'>
+            <div>
+              <Filter 
+                list = {this.state.list}
+                onFilterSelect={this.onFilterSelect}
+              />
+            </div>
+            <h1>{this.state.name}</h1>
+            <div className='repos'>
                 {this.state.repos.map((repo, i) => <RepoBuddy key = {i} repo = {repo} />)}
               </div>
           </div>
