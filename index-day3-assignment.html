@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>Third React App</title>
+  <script crossorigin src="https://unpkg.com/react@16/umd/react.development.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@16/umd/react-dom.development.js"></script>
+  <script src='https://unpkg.com/babel-standalone@6/babel.min.js'></script>
+</head>
+
+<style type='text/css'>
+  html {
+    background-color: antiquewhite;
+  }
+
+  .repos {
+    display: flex;
+    flex-wrap: wrap;
+  }
+
+  .repo {
+    align-self: flex-start;
+    background-color: aliceblue;
+    margin: 1px;
+  }
+</style>
+
+<body>
+  <div id='app'></div>
+
+  <script>
+    window.API = {
+      fetchPopularRepos(language) {
+        // "language" can be "javascript", "ruby", "python", or "all"
+        const encodedURI = encodeURI(`https://api.github.com/search/repositories?q=stars:>1+language:${language}&sort=stars&order=desc&type=Repositories`)
+        return fetch(encodedURI)
+          .then((data) => data.json())
+          .then((repos) => repos.items)
+          .catch((error) => {
+            console.warn(error)
+            return null
+          });
+      }
+    }
+  </script>
+  <script type='text/babel'>
+    class Loading extends React.Component {
+      constructor(props) {
+        super(props)
+
+        this.state = {
+          text: 'Loading'
+        }
+      }
+
+      componentDidMount() {
+        const stopper = this.state.text + '...'
+
+        this.interval = window.setInterval(() => {
+          console.log('running')
+          this.state.text === stopper
+            ? this.setState({text: 'Loading'})
+            : this.setState((currentState) => {
+              return {
+                text: currentState.text + '.'
+              }
+            })
+        }, 300)
+      }
+
+      componentWillUnmount() {
+        window.clearInterval(this.interval);
+      }
+
+      render() {
+        return(<h1>{this.state.text}</h1>)
+      }
+    }
+    
+    function RepoBuddy (props) {
+      return (
+        <div className='repo'>
+          <ul>
+              <li key={props.repo.name}>
+                <span>{props.repo.name}</span>
+              </li>
+              <li key={props.repo.full_name}>
+                <span>{props.repo.full_name}</span>
+              </li>
+              <li key={props.repo.stargazers_count}>
+                <span>{props.repo.stargazers_count}</span>
+              </li>
+          </ul>
+        </div>
+      )
+    }
+    
+
+    class App extends React.Component {
+      constructor(props) {
+        console.log('--constructor--');
+        super(props)
+
+        this.state = {
+          repos: [],
+          input: '',
+          loading: true
+        }
+
+        // autobind all own functions
+        for(const func of Object.getOwnPropertyNames(this.constructor.prototype)) {
+          if(['constructor', 'render', 'componentDidMount', 'componentDidUpdate', 'componentWillUnmount', 'shouldComponentUpdate'].indexOf(func) >= 0) {
+            continue;
+          }
+          console.log(func)
+          this[func] = this[func].bind(this);
+        }
+      }
+
+      componentDidMount() {
+        console.log('--componentDidMount--');
+
+        API.fetchPopularRepos().then((repos) => {
+          console.log('REPOS', repos)
+          this.setState({
+            repos,
+            loading: false
+          })
+          console.log('DONE')
+        })
+      }
+
+      componentDidUpdate() {
+        console.log('--componentDidUpdate--');
+      }
+
+      componentWillUnmount() {
+        console.log('--componentWillUnmount--');
+      }
+
+      shouldComponentUpdate(nextProps, nextState) {
+        return true;
+      }
+
+      static getDerivedStatesFromProps() {
+        console.log('--getDerivedStatesFromProps--');
+      }
+
+      render() {
+        console.log('--render--');
+
+        if(this.state.loading === true) {
+          return (<Loading />)
+        }
+
+        return (
+          <div>
+            <div class='repos'>
+                {this.state.repos.map((repo, i) => <RepoBuddy key = {i} repo = {repo} />)}
+              </div>
+          </div>
+        )
+      }
+    }
+
+    ReactDOM.render(
+      <App />,
+      document.getElementById('app')
+    )
+  </script>
+</body>
+
+</html>
